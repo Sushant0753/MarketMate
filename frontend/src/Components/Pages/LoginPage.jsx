@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import AnimatedGridBG from '../AnimatedGridBG';
-import EmailMarketingPage from './EmailMarketingPage';
+import { useNavigate } from 'react-router-dom';
+
+const navigate = useNavigate();
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -33,7 +35,7 @@ const LoginPage = () => {
       // Login logic
       if (formData.email === 'user@example.com' && formData.password === 'password123') {
         // Successful login
-        return <EmailMarketingPage />;
+        navigate('/email');
       } else {
         setError('Invalid email or password');
       }
@@ -44,7 +46,7 @@ const LoginPage = () => {
         return;
       }
       // Simulate successful signup
-      window.location.href = '/email';
+      navigate('/email');
     }
   };
 
