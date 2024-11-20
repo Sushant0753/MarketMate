@@ -50,7 +50,7 @@ const LoginPage = () => {
   return (
     <AnimatedGridBG>
       <div className="flex items-center justify-center min-h-screen p-4">
-        <div className="bg-gray-800/80 backdrop-blur-sm p-6 md:p-8 rounded-lg shadow-xl w-full max-w-md border border-gray-700">
+        <div className="bg-gray-800/80 text-white backdrop-blur-sm p-6 md:p-8 rounded-lg shadow-xl w-full max-w-md border border-gray-700">
           <h2 className="text-2xl font-bold mb-6 text-center">
             {isLogin ? 'Login' : 'Sign Up'}
           </h2>
