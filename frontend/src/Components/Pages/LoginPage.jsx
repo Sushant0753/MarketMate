@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AnimatedGridBG from '../AnimatedGridBG';
+import EmailMarketingPage from './EmailMarketingPage';
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -32,7 +33,7 @@ const LoginPage = () => {
       // Login logic
       if (formData.email === 'user@example.com' && formData.password === 'password123') {
         // Successful login
-        window.location.href = '/email';
+        return <EmailMarketingPage />;
       } else {
         setError('Invalid email or password');
       }
