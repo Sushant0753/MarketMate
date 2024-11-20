@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import AnimatedGridBG from '../AnimatedGridBG';
 import { useNavigate } from 'react-router-dom';
 
-const navigate = useNavigate();
+
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
