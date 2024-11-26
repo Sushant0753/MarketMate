@@ -1,9 +1,17 @@
-import React, {useState} from 'react';
-import {Link} from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from './Pages/Context/AuthContext'
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { isAuthenticated, logout } = useAuth();
   
+    const handleAuthAction = () => {
+        if (isAuthenticated) {
+            logout();
+        }
+    };
+
     return (
       <nav className="bg-[#090909] text-white p-4 relative">
         <div className="container mx-auto flex justify-between items-center">
@@ -24,8 +32,11 @@ const Navbar = () => {
             <Link to="/" className="hover:text-blue-500">Home</Link>
             <Link to="/email" className="hover:text-blue-500">Email Marketing</Link>
             <Link to="/social" className="hover:text-blue-500">Social Media</Link>
-            <Link to="/login" className="hover:text-blue-500">Login</Link>
-            {/* <Link to="/community" className="hover:text-blue-500">Community</Link> */}
+            {isAuthenticated ? (
+              <button onClick={handleAuthAction} className="hover:text-blue-500">Logout</button>
+            ) : (
+              <Link to="/login" className="hover:text-blue-500">Login</Link>
+            )}
           </div>
   
           {/* Mobile Menu */}
@@ -44,10 +55,22 @@ const Navbar = () => {
                   window.location.href = '/social';
                   setIsMenuOpen(false);
                 }} className="hover:text-blue-500">Social Media</button>
-                <button onClick={() => {
-                  window.location.href = '/login';
-                  setIsMenuOpen(false);
-                }} className="hover:text-blue-500">Login</button>
+                {isAuthenticated ? (
+                  <button 
+                    onClick={() => {
+                      handleAuthAction();
+                      setIsMenuOpen(false);
+                    }} 
+                    className="hover:text-blue-500"
+                  >
+                    Logout
+                  </button>
+                ) : (
+                  <button onClick={() => {
+                    window.location.href = '/login';
+                    setIsMenuOpen(false);
+                  }} className="hover:text-blue-500">Login</button>
+                )}
               </div>
             </div>
           )}
@@ -56,4 +79,4 @@ const Navbar = () => {
     );
 };
 
-export default Navbar
+export default Navbar;

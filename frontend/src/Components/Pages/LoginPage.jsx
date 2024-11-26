@@ -1,60 +1,36 @@
 import React, { useState } from 'react';
+import { useAuth } from '../Pages/Context/AuthContext';
 import AnimatedGridBG from '../AnimatedGridBG';
-import { useNavigate } from 'react-router-dom';
-
-
 
 const LoginPage = () => {
-  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: ''
-  });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const { login, signup } = useAuth();
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Basic validation
-    if (!formData.email || !formData.password) {
-      setError('Please fill in all required fields');
-      return;
-    }
+    try {
+      const authMethod = isLogin ? login : signup;
+      const result = await authMethod(email, password);
 
-    if (isLogin) {
-      // Login logic
-      if (formData.email === 'user@example.com' && formData.password === 'password123') {
-        // Successful login
-        navigate('/email');
-      } else {
-        setError('Invalid email or password');
+      if (!result.success) {
+        console.error('Authentication Error:', result.message);
+        setError(result.message);
       }
-    } else {
-      // Signup logic
-      if (!formData.name) {
-        setError('Name is required for signup');
-        return;
-      }
-      // Simulate successful signup
-      navigate('/email');
+    } catch (err) {
+      console.error('Unexpected Error:', err);
+      setError('An unexpected error occurred');
     }
   };
 
   return (
     <AnimatedGridBG>
       <div className="flex items-center justify-center min-h-screen p-4">
-        <div className="bg-gray-800/80  backdrop-blur-sm p-6 md:p-8 rounded-lg shadow-xl w-full max-w-md border border-gray-700">
+        <div className="bg-gray-800/80 backdrop-blur-sm p-6 md:p-8 rounded-lg shadow-xl w-full max-w-md border border-gray-700">
           <h2 className="text-2xl text-white font-bold mb-6 text-center">
             {isLogin ? 'Login' : 'Sign Up'}
           </h2>
@@ -66,36 +42,26 @@ const LoginPage = () => {
           )}
           
           <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLogin && (
-              <div className="space-y-1">
-                <input 
-                  type="text" 
-                  name="name"
-                  placeholder="Full Name" 
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full p-3 bg-gray-900/50 rounded-lg border border-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none"
-                />
-              </div>
-            )}
             <div className="space-y-1">
+              <label className="block text-gray-400 mb-2">Email</label>
               <input 
                 type="email" 
-                name="email"
-                placeholder="Email" 
-                value={formData.email}
-                onChange={handleInputChange}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full p-3 bg-gray-900/50 rounded-lg border border-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none"
+                placeholder="Enter your email"
+                required
               />
             </div>
             <div className="space-y-1">
+              <label className="block text-gray-400 mb-2">Password</label>
               <input 
                 type="password" 
-                name="password"
-                placeholder="Password" 
-                value={formData.password}
-                onChange={handleInputChange}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full p-3 bg-gray-900/50 rounded-lg border border-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none"
+                placeholder="Enter your password"
+                required
               />
             </div>
             <button 
@@ -104,18 +70,18 @@ const LoginPage = () => {
             >
               {isLogin ? 'Login' : 'Sign Up'}
             </button>
+            <div className="text-center mt-4">
+              <button 
+                type="button"
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                {isLogin 
+                  ? 'Need an account? Sign Up' 
+                  : 'Already have an account? Login'}
+              </button>
+            </div>
           </form>
-          
-          <div className="text-center mt-6">
-            <button 
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-blue-400 hover:text-blue-300 transition-colors"
-            >
-              {isLogin 
-                ? 'Need an account? Sign Up' 
-                : 'Already have an account? Login'}
-            </button>
-          </div>
         </div>
       </div>
     </AnimatedGridBG>
