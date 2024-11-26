@@ -18,12 +18,12 @@ const Notification = ({ message, type }) => {
 };
 
 const EmailMarketingPage = () => {
-  const { logout } = useAuth();
   const [notification, setNotification] = useState({ message: '', type: '' });
   const [emailForm, setEmailForm] = useState({
     recipients: '',
     subject: '',
-    body: ''
+    body: '',
+    triggerType: 'manual' // Added to specify email trigger type
   });
 
   const showNotification = (message, type = 'success') => {
@@ -45,7 +45,8 @@ const EmailMarketingPage = () => {
       const response = await axios.post('https://marketmate.vercel.app/send_email', {
         recipients: recipientsList,
         subject: emailForm.subject,
-        body: emailForm.body
+        body: emailForm.body,
+        triggerType: emailForm.triggerType
       });
 
       showNotification(response.data.message);
@@ -54,7 +55,8 @@ const EmailMarketingPage = () => {
       setEmailForm({
         recipients: '',
         subject: '',
-        body: ''
+        body: '',
+        triggerType: 'manual'
       });
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Failed to send email';
@@ -67,22 +69,30 @@ const EmailMarketingPage = () => {
       <Notification message={notification.message} type={notification.type} />
       <div className="min-h-screen flex flex-col items-center justify-start p-4 md:p-8 lg:p-12">
         <div className="w-full max-w-6xl">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-white">
-              Email Marketing Dashboard
-            </h1>
-            <button 
-              onClick={logout}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
-            >
-              Logout
-            </button>
-          </div>
+          <h1 className="text-3xl font-bold text-white mb-8">
+            Email Marketing Automation
+          </h1>
 
           <form onSubmit={handleEmailSend} className="w-full max-w-xl mx-auto bg-gray-800/50 backdrop-blur-sm p-8 rounded-xl">
             <h2 className="text-2xl font-bold text-white mb-6 text-center">
-              Send Email Campaign
+              Create Email Trigger
             </h2>
+            <div className="mb-4">
+              <label htmlFor="triggerType" className="block text-gray-400 mb-2">
+                Email Trigger Type
+              </label>
+              <select
+                id="triggerType"
+                value={emailForm.triggerType}
+                onChange={(e) => setEmailForm({...emailForm, triggerType: e.target.value})}
+                className="w-full p-3 bg-gray-700 rounded-lg text-white focus:outline-none"
+              >
+                <option value="manual">Manual Send</option>
+                <option value="subscription">New Subscription</option>
+                <option value="cart_abandoned">Abandoned Cart</option>
+                <option value="welcome">Welcome Email</option>
+              </select>
+            </div>
             <div className="mb-4">
               <label htmlFor="recipients" className="block text-gray-400 mb-2">
                 Recipients (comma-separated emails)
@@ -124,7 +134,7 @@ const EmailMarketingPage = () => {
               type="submit" 
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-300"
             >
-              Send Email Campaign
+              Create Email Trigger
             </button>
           </form>
         </div>
