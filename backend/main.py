@@ -7,6 +7,16 @@ import os
 from flask_cors import CORS
 from dotenv import load_dotenv
 import google.generativeai as genai
+import logging
+from logging.handlers import RotatingFileHandler
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, 
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    handlers=[
+                        logging.StreamHandler(),  # Prints to console
+                        RotatingFileHandler('server.log', maxBytes=10000, backupCount=3)  # Logs to file
+                    ])
 
 app = Flask(__name__)
 CORS(app)
@@ -45,7 +55,11 @@ migrate = Migrate(app, db)
 
 # Route to create tables
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+        logging.info("Database tables created successfully")
+    except Exception as e:
+        logging.error(f"Error creating database tables: {e}")
 
 # Signup Endpoint
 @app.route('/signup', methods=['POST'])
@@ -56,6 +70,7 @@ def signup():
 
     # Check if user already exists
     if User.query.filter_by(email=email).first():
+        logging.info(f"Signup attempt for existing user: {email}")
         return jsonify({"message": "User already exists"}), 400
 
     # Hash password and save user
@@ -64,6 +79,7 @@ def signup():
     db.session.add(new_user)
     db.session.commit()
 
+    logging.info(f"New user signup: {email}")
     return jsonify({"message": "Signup successful"}), 201
 
 # Login Endpoint
@@ -75,11 +91,11 @@ def login():
 
     user = User.query.filter_by(email=email).first()
     if not user or not check_password_hash(user.password, password):
+        logging.warning(f"Failed login attempt for email: {email}")
         return jsonify({"message": "Invalid credentials"}), 401
 
+    logging.info(f"Successful login for: {email}")
     return jsonify({"message": "Login successful"}), 200
-
-
 
 # Send Email Endpoint
 @app.route('/send_email', methods=['POST'])
@@ -90,18 +106,20 @@ def send_email():
     body = data.get('body')
 
     if not recipients or not subject or not body:
+        logging.warning("Invalid email send attempt")
         return jsonify({"message": "Invalid input"}), 400
 
     try:
         msg = Message(subject=subject, recipients=recipients, body=body)
         mail.send(msg)
+        logging.info(f"Email sent successfully to: {recipients}")
         return jsonify({"message": "Emails sent successfully"}), 200
     except Exception as e:
+        logging.error(f"Failed to send email: {str(e)}")
         return jsonify({"message": f"Failed to send email: {str(e)}"}), 500
 
 @app.route('/generate_email', methods=['POST'])
 def generate_email():
-
     data = request.get_json()
 
     company_name = data.get('companyName')
@@ -114,17 +132,21 @@ def generate_email():
 
     try:
         response = model.generate_content(prompt)
-
+        logging.info("Email generated successfully")
         return jsonify({
             "generated_email": response.text
         })
     
     except Exception as e:
+        logging.error(f"Error generating email: {str(e)}")
         return jsonify({
             "error": str(e)
         }), 500
 
-
-
 if __name__ == '__main__':
-    app.run()
+    logging.info("Starting Flask server...")
+    try:
+        app.run(host='0.0.0.0', port=5000)
+        logging.info("Flask server is running")
+    except Exception as e:
+        logging.error(f"Failed to start Flask server: {e}")
