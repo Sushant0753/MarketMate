@@ -24,6 +24,7 @@ const EmailMarketingPage = () => {
     purpose: '',
     triggerType: 'manual',
     additionalDetails: '',
+    recipients: [],
     subject: '',
     body: ''
   });
@@ -115,6 +116,12 @@ const EmailMarketingPage = () => {
   const handleFinalSend = async (e) => {
     e.preventDefault();
     
+    // Validate recipients
+    if (!emailForm.recipients || emailForm.recipients.length === 0) {
+      showNotification('Please enter at least one recipient email', 'error');
+      return;
+    }
+    
     try {
       const response = await axios.post('https://marketmate.vercel.app/send_email', {
         ...emailForm
@@ -128,6 +135,7 @@ const EmailMarketingPage = () => {
         purpose: '',
         triggerType: 'manual',
         additionalDetails: '',
+        recipients: [], // Reset recipients
         subject: '',
         body: ''
       });
@@ -139,7 +147,7 @@ const EmailMarketingPage = () => {
       showNotification(errorMessage, 'error');
     }
   };
-
+  
   const renderTabContent = () => {
     switch(activeTab) {
       case 0:
@@ -219,6 +227,23 @@ const EmailMarketingPage = () => {
                   </option>
                 ))}
               </select>
+            </div>
+            <div className="mb-4">
+              <label htmlFor="recipients" className="block text-gray-400 mb-2">
+                Recipients Email Addresses (comma-separated)
+              </label>
+              <input
+                type="text"
+                id="recipients"
+                value={emailForm.recipients.join(', ')}
+                onChange={(e) => setEmailForm({
+                  ...emailForm, 
+                  recipients: e.target.value.split(',').map(email => email.trim())
+                })}
+                className="w-full p-3 bg-gray-700 rounded-lg text-white focus:outline-none"
+                placeholder="Enter recipient email addresses"
+                required
+              />
             </div>
             <div className="mb-4">
               <label htmlFor="additionalDetails" className="block text-gray-400 mb-2">

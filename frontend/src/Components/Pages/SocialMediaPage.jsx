@@ -37,7 +37,7 @@ const SocialMediaPage = () => {
               Streamline your social media presence with our powerful management tools
             </p>
           </div>
-          
+
           <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-6">
             {features.map((feature, index) => (
               <div 

@@ -125,6 +125,5 @@ def generate_email():
         }), 500
 
 
-
 if __name__ == '__main__':
     app.run()
